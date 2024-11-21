@@ -1,9 +1,10 @@
 //__dirname
-// console.log(__dirname)
+console.log(__dirname)
 // module  this is globale variable 
 // console.log(module) // it will print module 
 //  console.log(__filename)  //it will print curret file name 
 // console.log(process)// this is vary close ti moduling system  and it wil help to  imprt 
+//  it is the work  in the ES6 Model 
 // console.log(globle)
 
 console.log(" hello ji ")

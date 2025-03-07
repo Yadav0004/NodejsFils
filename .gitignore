@@ -1,2 +1,4 @@
 node_modules/
 node_modules
+.env
+#  now ignore  the .env file  which is  contain  api  key 

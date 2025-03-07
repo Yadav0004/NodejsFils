@@ -17,43 +17,53 @@ export const getTweetById = (req, res) => {
 
 export const createTweet = async (req, res) => {
   try {
-    // Log incoming request
-    console.log('Request received:', {
-      body: req.body,
-      validatedBody: req.validatedBody
-    });
-
-    const { body } = req.validatedBody || req.body;
+    console.log('Validated body:', req.validatedBody);
+    const { body } = req.validatedBody;
     
-    // Initialize bad words filter with custom configuration
+    // Initialize bad words filter
     const filter = new Filter();
-    
-    // Add custom words to filter (optional)
     filter.addWords('customword1', 'customword2');
     
-    // Check for profanity
+    // Handle array of tweets
+    if (Array.isArray(body)) {
+      const tweets = [];
+      for (const tweet of body) {
+        if (filter.isProfane(tweet)) {
+          return res.status(400).json({
+            success: false,
+            message: `Inappropriate content detected: ${tweet}`
+          });
+        }
+        const created = await createTweetService({ body: tweet });
+        tweets.push(created);
+      }
+      return res.status(201).json({
+        success: true,
+        data: tweets,
+        message: 'Multiple tweets created successfully'
+      });
+    }
+    
+    // Handle single tweet
     if (filter.isProfane(body)) {
-      console.log('Profanity detected in:', body);
       return res.status(400).json({
         success: false,
-        message: "Tweet contains inappropriate content"
+        message: 'Inappropriate content detected'
       });
     }
 
-    const response = await createTweetService({
-      body: body
-    });
-
+    const tweet = await createTweetService({ body });
     return res.status(201).json({
       success: true,
-      data: response,
-      message: "tweet created successfully"
+      data: tweet,
+      message: 'Tweet created successfully'
     });
+
   } catch (error) {
     console.error('Controller error:', error);
     return res.status(400).json({
       success: false,
-      message: error.message
+      message: error.message || 'Failed to create tweet'
     });
   }
 };
